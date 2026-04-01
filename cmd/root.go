@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/sthbryan/easypass/internal/infrastructure/clipboard"
 	"github.com/spf13/viper"
 	"github.com/sthbryan/easypass/internal/application/dto"
 	"github.com/sthbryan/easypass/internal/application/usecase"
@@ -31,6 +32,7 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose mode")
+	rootCmd.PersistentFlags().BoolP("copy", "c", false, "Copy to clipboard")
 }
 
 func initConfig() {
@@ -88,6 +90,16 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(result.SecurePassword)
+
+	if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
+		clip := clipboard.NewSystemClipboard()
+		if err := clip.Copy(result.SecurePassword); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to copy: %v\n", err)
+		} else {
+			fmt.Println("Copied to clipboard")
+		}
+	}
+
 	return nil
 }
 
