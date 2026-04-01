@@ -78,10 +78,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Updating from %s to %s...\n", current, latest)
 
 	assetName := getAssetName()
-	downloadURL := fmt.Sprintf(
-		"https://github.com/%s/%s/releases/download/%s/%s",
-		repoOwner, repoName, latest, assetName,
-	)
+	downloadURL := "https://github.com/" + repoOwner + "/" + repoName + "/releases/download/" + latest + "/" + assetName
 
 	tmpFile, err := downloadFile(downloadURL)
 	if err != nil {
@@ -107,7 +104,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 }
 
 func getLatestVersion() (string, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", repoOwner, repoName)
+	url := "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/releases/latest"
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -145,7 +142,7 @@ func getAssetName() string {
 		ext = ".exe"
 	}
 
-	return fmt.Sprintf("ep-%s-%s%s", os, arch, ext)
+	return "ep-" + os + "-" + arch + ext
 }
 
 func getInstallPath() (string, error) {
