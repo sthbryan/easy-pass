@@ -2,9 +2,11 @@
 
 BINARY_NAME=ep
 INSTALL_PATH=/usr/local/bin
+VERSION ?= 0.1.0
+LDFLAGS := -X main.version=$(VERSION)
 
 build:
-	go build -o $(BINARY_NAME) ./cmd
+	go build -ldflags="$(LDFLAGS)" -o $(BINARY_NAME) ./cmd
 
 test:
 	go test -v ./...
@@ -20,3 +22,7 @@ lint:
 
 run:
 	go run ./cmd $(ARGS)
+
+.PHONY: version
+version:
+	@echo $(VERSION)

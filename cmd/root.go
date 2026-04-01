@@ -21,6 +21,7 @@ Uses Argon2id to derive secure keys.
 
 Example:
   ep "mypassword" "myMasterSecret"`,
+	Version: version,
 	Args: cobra.RangeArgs(0, 2),
 	RunE: runRoot,
 }
