@@ -9,18 +9,23 @@ import (
 	"github.com/sthbryan/easypass/internal/domain/entity"
 )
 
+const ConfigDir = "$HOME/.config/easypass"
+const ConfigFile = "config.yaml"
+
 type FileConfigRepository struct {
-	viper *viper.Viper
+	viper    *viper.Viper
+	configDir string
+	configPath string
 }
 
 func NewFileConfigRepository() *FileConfigRepository {
 	v := viper.New()
+	configDir := os.ExpandEnv(ConfigDir)
+	configPath := filepath.Join(configDir, ConfigFile)
 
-	configDir := os.ExpandEnv("$HOME/.config/easypass")
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 	v.AddConfigPath(configDir)
-	v.AddConfigPath(".")
 
 	v.SetDefault("password.length", 16)
 	v.SetDefault("password.use_uppercase", true)
@@ -35,10 +40,18 @@ func NewFileConfigRepository() *FileConfigRepository {
 	v.SetDefault("password.algorithm", "argon2id")
 	v.SetDefault("password.iterations", 1)
 
-	return &FileConfigRepository{viper: v}
+	return &FileConfigRepository{
+		viper:      v,
+		configDir:  configDir,
+		configPath: configPath,
+	}
 }
 
 func (r *FileConfigRepository) Save(config *entity.PasswordConfig) error {
+	if err := os.MkdirAll(r.configDir, 0755); err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+
 	r.viper.Set("password.length", config.Length)
 	r.viper.Set("password.use_uppercase", config.UseUppercase)
 	r.viper.Set("password.use_lowercase", config.UseLowercase)
@@ -52,15 +65,7 @@ func (r *FileConfigRepository) Save(config *entity.PasswordConfig) error {
 	r.viper.Set("password.algorithm", config.Algorithm)
 	r.viper.Set("password.iterations", config.Iterations)
 
-	configDir := filepath.Dir(r.viper.ConfigFileUsed())
-	if configDir != "" {
-		if err := os.MkdirAll(configDir, 0755); err != nil {
-			return fmt.Errorf("failed to create directory: %w", err)
-		}
-	}
-
-	configPath := filepath.Join(os.ExpandEnv("$HOME/.config/easypass"), "config.yaml")
-	if err := r.viper.WriteConfigAs(configPath); err != nil {
+	if err := r.viper.WriteConfigAs(r.configPath); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
 

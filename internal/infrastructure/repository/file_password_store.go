@@ -16,12 +16,16 @@ type FilePasswordStore struct {
 }
 
 func NewFilePasswordStore() *FilePasswordStore {
-	configDir := os.ExpandEnv("$HOME/.config/easypass")
+	configDir := os.ExpandEnv(ConfigDir)
 	filePath := filepath.Join(configDir, "passwords.enc")
 	return &FilePasswordStore{filePath: filePath}
 }
 
 func (s *FilePasswordStore) Save(name, secure, masterPass string) error {
+	if err := os.MkdirAll(os.ExpandEnv(ConfigDir), 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
 	passwords, err := s.loadAll(masterPass)
 	if err != nil && !os.IsNotExist(err) {
 		return err
@@ -46,7 +50,7 @@ func (s *FilePasswordStore) Get(name, masterPass string) (string, error) {
 }
 
 func (s *FilePasswordStore) List() ([]string, error) {
-	configDir := filepath.Dir(s.filePath)
+	configDir := os.ExpandEnv(ConfigDir)
 	metaPath := filepath.Join(configDir, "passwords.meta")
 
 	if _, err := os.Stat(metaPath); os.IsNotExist(err) {
@@ -110,16 +114,11 @@ func (s *FilePasswordStore) saveAll(passwords map[string]string, masterPass stri
 		return err
 	}
 
-	dir := filepath.Dir(s.filePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
-
 	if err := os.WriteFile(s.filePath, encrypted, 0600); err != nil {
 		return err
 	}
 
-	metaPath := filepath.Join(dir, "passwords.meta")
+	metaPath := filepath.Join(os.ExpandEnv(ConfigDir), "passwords.meta")
 	names := make([]string, 0, len(passwords))
 	for n := range passwords {
 		names = append(names, n)
