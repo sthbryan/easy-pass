@@ -1,6 +1,6 @@
 # EasyPass
 
-CLI to generate secure passwords from easy-to-remember phrases.
+Want to use strong passwords but hate remembering them? EasyPass is a simple solution that generates secure passwords from a memorable "easy password" and a master password. Just run `ep "easyPass" "masterSecret"` and get a strong password you can use everywhere!
 
 ## Installation
 
@@ -89,10 +89,8 @@ ep list
 ## Algorithm
 
 EasyPass uses Argon2id to derive a secure password from:
-- Your easy password (e.g., "limonada")
-- Your master password (used as salt)
-
-The result is a password of the length and characters you configure.
+- Your easy password (e.g., "twitter-password")
+- Your master password and secure password, save it on your mind!
 
 ## Files
 
@@ -105,3 +103,9 @@ The result is a password of the length and characters you configure.
 - Passwords encrypted with AES-256-GCM
 - Uses Argon2id for derivation (GPU/ASIC resistant)
 - Option to exclude similar characters for readability
+
+## License
+MIT License
+
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request.
