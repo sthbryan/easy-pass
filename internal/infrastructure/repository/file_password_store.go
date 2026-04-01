@@ -123,8 +123,13 @@ func (s *FilePasswordStore) saveAll(passwords map[string]string, masterPass stri
 	for n := range passwords {
 		names = append(names, n)
 	}
-	metaData, _ := json.Marshal(map[string][]string{"names": names})
-	os.WriteFile(metaPath, metaData, 0644)
+	metaData, err := json.Marshal(map[string][]string{"names": names})
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(metaPath, metaData, 0644); err != nil {
+		return err
+	}
 
 	return nil
 }
