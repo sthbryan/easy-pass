@@ -89,15 +89,15 @@ func runRoot(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to generate: %w", err)
 	}
 
-	fmt.Println(result.SecurePassword)
+	clip := clipboard.NewSystemClipboard()
 
 	if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
-		clip := clipboard.NewSystemClipboard()
 		if err := clip.Copy(result.SecurePassword); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to copy: %v\n", err)
-		} else {
-			fmt.Println("Copied to clipboard")
+			return fmt.Errorf("failed to copy: %w", err)
 		}
+		fmt.Println("✓ Copied to clipboard")
+	} else {
+		fmt.Println(result.SecurePassword)
 	}
 
 	return nil
