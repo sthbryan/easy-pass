@@ -16,6 +16,12 @@ cd easypass
 make install
 ```
 
+In macOS, you may need to remove the quarantine attribute:
+
+```bash
+xattr -d com.apple.quarantine $(which ep)
+```
+
 ## Usage
 
 ### Generate password
