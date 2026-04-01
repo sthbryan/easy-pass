@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/sthbryan/easypass/internal/application/dto"
@@ -39,13 +38,15 @@ func runShow(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to show: %w", err)
 	}
 
-	fmt.Printf("Password: %s\n", result.Password)
-
 	clip := clipboard.NewSystemClipboard()
-	if err := clip.Copy(result.Password); err != nil {
-		fmt.Fprintf(os.Stderr, "⚠ Failed to copy to clipboard: %v\n", err)
-	} else {
+
+	if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
+		if err := clip.Copy(result.Password); err != nil {
+			return fmt.Errorf("failed to copy: %w", err)
+		}
 		fmt.Println("✓ Copied to clipboard")
+	} else {
+		fmt.Printf("Password: %s\n", result.Password)
 	}
 
 	return nil
@@ -72,6 +73,7 @@ func runList(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
+	showCmd.Flags().BoolP("copy", "c", false, "Copy to clipboard only (hide password)")
 	rootCmd.AddCommand(showCmd)
 	rootCmd.AddCommand(listCmd)
 }
